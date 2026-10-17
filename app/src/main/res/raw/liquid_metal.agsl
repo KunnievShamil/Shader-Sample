@@ -1,0 +1,34 @@
+uniform float2 resolution;
+uniform float time;
+uniform float distortion;
+uniform float2 touch;
+
+float heightAt(float2 p) {
+    float t = time * 0.45;
+    float wave = sin(p.x * 5.0 + sin(p.y * 4.0 + t) * 1.6 + t);
+    wave += 0.5 * cos(p.y * 7.0 - p.x * 3.0 - t * 1.3);
+    float2 finger = (touch - 0.5) * resolution / min(resolution.x, resolution.y);
+    float d = length(p - finger);
+    return wave * 0.13 * distortion + 0.24 * exp(-d * d * 12.0);
+}
+
+half4 main(float2 fragCoord) {
+    float2 p = (fragCoord - resolution * 0.5) / min(resolution.x, resolution.y);
+    float h = heightAt(p);
+    float e = 0.003;
+    float2 slope = float2(heightAt(p + float2(e, 0.0)) - h,
+                          heightAt(p + float2(0.0, e)) - h) / e;
+    float3 normal = normalize(float3(-slope, 1.0));
+    float3 reflected = reflect(float3(0.0, 0.0, -1.0), normal);
+
+    // Broad studio lights reflected by the rippling surface.
+    float bands = 0.5 + 0.5 * sin(reflected.x * 7.0 + reflected.y * 3.0);
+    float silver = 0.12 + 0.68 * pow(bands, 3.0);
+    float highlight = pow(max(dot(normal, normalize(float3(-0.4, -0.6, 1.0))), 0.0), 40.0);
+    float fresnel = pow(1.0 - max(normal.z, 0.0), 2.0);
+    float3 color = float3(0.72, 0.82, 0.9) * silver;
+    color += float3(0.7, 0.95, 0.86) * highlight * 0.8;
+    color += mix(float3(0.15, 0.38, 0.5), float3(0.55, 0.3, 0.16),
+                 0.5 + 0.5 * reflected.y) * fresnel * 0.6;
+    return half4(half3(clamp(color, 0.0, 1.0)), 1.0);
+}

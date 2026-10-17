@@ -6,7 +6,14 @@
     <string name="aurora_title">Северное сияние</string>
     <string name="aurora_description">Живой градиент внутри Compose-карточки. Первый эксперимент с AGSL.</string>
     <string name="open_demo">Открыть эксперимент →</string>
-    <string name="gallery_footer">01 эксперимент · AGSL на Android 13+</string>
+    <string name="gallery_footer">02 эксперимента · AGSL на Android 13+</string>
+    <string name="metal_title">Жидкий металл</string>
+    <string name="metal_description">Хромированная поверхность с живыми бликами. Реагирует на касание.</string>
+    <string name="second_experiment">ЭКСПЕРИМЕНТ 02</string>
+    <string name="metal_demo_description">Коснись металла и проведи пальцем: поверхность прогнётся, а отражения потекут за движением.</string>
+    <string name="metal_card_title">Прикоснись к свету</string>
+    <string name="distortion">Сила искажения</string>
+    <string name="metal_explanation">Шейдер вычисляет наклон волн и отражение воображаемых источников света. Касание меняет рельеф поверхности. На паузе металл по-прежнему реагирует на палец.</string>
     <string name="back_to_gallery">← Все эксперименты</string>
     <string name="first_experiment">ЭКСПЕРИМЕНТ 01</string>
     <string name="demo_description">Плавные ленты света, нарисованные шейдером. Измени скорость или останови мгновение.</string>

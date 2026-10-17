@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,23 +24,27 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.isActive
 import ru.shamilkun.shader_sample.R
 import ru.shamilkun.shader_sample.ui.components.AuroraCard
+import ru.shamilkun.shader_sample.ui.components.LiquidMetalCard
 import ru.shamilkun.shader_sample.ui.theme.ShaderSampleTheme
+
+private enum class Demo { Aurora, LiquidMetal }
 
 @Composable
 fun ShaderApp() {
-    var showAurora by rememberSaveable { mutableStateOf(false) }
-    BackHandler(enabled = showAurora) { showAurora = false }
+    var selectedDemo by rememberSaveable { mutableStateOf<Demo?>(null) }
+    BackHandler(enabled = selectedDemo != null) { selectedDemo = null }
     Surface(modifier = Modifier.fillMaxSize()) {
-        if (showAurora) {
-            AuroraScreen(onBack = { showAurora = false })
+        val demo = selectedDemo
+        if (demo != null) {
+            key(demo) { DemoScreen(demo = demo, onBack = { selectedDemo = null }) }
         } else {
-            GalleryScreen(onOpenAurora = { showAurora = true })
+            GalleryScreen(onOpenDemo = { selectedDemo = it })
         }
     }
 }
 
 @Composable
-private fun GalleryScreen(onOpenAurora: () -> Unit) {
+private fun GalleryScreen(onOpenDemo: (Demo) -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().safeDrawingPadding(),
         contentPadding = PaddingValues(24.dp),
@@ -55,7 +60,8 @@ private fun GalleryScreen(onOpenAurora: () -> Unit) {
         }
         item(key = "aurora") {
             Card(
-                onClick = onOpenAurora,
+                onClick = { onOpenDemo(Demo.Aurora) },
+                modifier = Modifier.testTag("demo_aurora"),
                 shape = RoundedCornerShape(28.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             ) {
@@ -70,6 +76,29 @@ private fun GalleryScreen(onOpenAurora: () -> Unit) {
                 }
             }
         }
+        item(key = "liquid_metal") {
+            Card(
+                onClick = { onOpenDemo(Demo.LiquidMetal) },
+                modifier = Modifier.testTag("demo_metal"),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            ) {
+                LiquidMetalCard(
+                    time = remember { mutableFloatStateOf(0f) },
+                    distortion = remember { mutableFloatStateOf(1f) },
+                    modifier = Modifier.fillMaxWidth().height(180.dp),
+                    interactive = false,
+                ) {
+                    Text("02 / AGSL", Modifier.padding(20.dp), style = MaterialTheme.typography.labelMedium)
+                }
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(stringResource(R.string.metal_title), style = MaterialTheme.typography.titleLarge)
+                    Text(stringResource(R.string.metal_description), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.open_demo), Modifier.padding(top = 8.dp),
+                        color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        }
         item {
             Text(stringResource(R.string.gallery_footer), style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -78,9 +107,11 @@ private fun GalleryScreen(onOpenAurora: () -> Unit) {
 }
 
 @Composable
-private fun AuroraScreen(onBack: () -> Unit) {
+private fun DemoScreen(demo: Demo, onBack: () -> Unit) {
+    val isMetal = demo == Demo.LiquidMetal
     var playing by rememberSaveable { mutableStateOf(true) }
     var speed by rememberSaveable { mutableFloatStateOf(1f) }
+    val distortion = rememberSaveable { mutableFloatStateOf(1f) }
     val time = rememberSaveable { mutableFloatStateOf(0f) }
     val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -108,12 +139,22 @@ private fun AuroraScreen(onBack: () -> Unit) {
             Text(stringResource(R.string.back_to_gallery))
         }
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Eyebrow(stringResource(R.string.first_experiment))
-            Text(stringResource(R.string.aurora_title), style = MaterialTheme.typography.headlineLarge,
+            Eyebrow(stringResource(if (isMetal) R.string.second_experiment else R.string.first_experiment))
+            Text(stringResource(if (isMetal) R.string.metal_title else R.string.aurora_title), style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.SemiBold)
-            Text(stringResource(R.string.demo_description), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(if (isMetal) R.string.metal_demo_description else R.string.demo_description), color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        AuroraCard(time, Modifier.fillMaxWidth().height(300.dp)) {
+        if (isMetal) {
+            LiquidMetalCard(time, distortion, Modifier.fillMaxWidth().height(300.dp).testTag("metal_surface")) {
+                // A scrim keeps ordinary Compose text legible over moving reflections.
+                Column(Modifier.align(Alignment.BottomStart)
+                    .background(androidx.compose.ui.graphics.Color(0xB30B1114), RoundedCornerShape(topEnd = 24.dp))
+                    .padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("CHROME / TOUCH & FLOW", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.metal_card_title), style = MaterialTheme.typography.headlineMedium)
+                }
+            }
+        } else AuroraCard(time, Modifier.fillMaxWidth().height(300.dp)) {
             Column(Modifier.align(Alignment.BottomStart).padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.card_label), style = MaterialTheme.typography.labelMedium)
                 Text(stringResource(R.string.card_title), style = MaterialTheme.typography.headlineMedium,
@@ -132,13 +173,18 @@ private fun AuroraScreen(onBack: () -> Unit) {
                     Text(stringResource(R.string.speed_value, speed), color = MaterialTheme.colorScheme.primary)
                 }
                 Slider(value = speed, onValueChange = { speed = it }, valueRange = 0.25f..2f)
+                if (isMetal) {
+                    Text(stringResource(R.string.distortion), style = MaterialTheme.typography.titleMedium)
+                    Slider(value = distortion.floatValue, onValueChange = { distortion.floatValue = it },
+                        valueRange = 0.25f..2f, modifier = Modifier.testTag("metal_distortion"))
+                }
                 FilledTonalButton(onClick = { playing = !playing }, modifier = Modifier.fillMaxWidth()) {
                     Text(stringResource(if (playing) R.string.pause else R.string.resume))
                 }
             }
         }
         Text(
-            stringResource(if (supported) R.string.shader_explanation else R.string.shader_unsupported),
+            stringResource(if (!supported) R.string.shader_unsupported else if (isMetal) R.string.metal_explanation else R.string.shader_explanation),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
