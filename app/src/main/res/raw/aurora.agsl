@@ -1,0 +1,18 @@
+uniform float2 resolution;
+uniform float time;
+
+half4 main(float2 fragCoord) {
+    float2 uv = fragCoord / resolution;
+    float x = uv.x * resolution.x / resolution.y;
+    float wave = 0.52 + 0.16 * sin(x * 4.0 + time * 0.7)
+                      + 0.08 * sin(x * 7.0 - time * 0.5);
+    float ribbon = exp(-abs(uv.y - wave) * 8.0);
+    float glow = exp(-abs(uv.y - wave - 0.12) * 4.0);
+    float shimmer = 0.75 + 0.25 * sin(x * 12.0 + uv.y * 3.0 + time);
+    float3 night = mix(float3(0.025, 0.055, 0.11), float3(0.07, 0.045, 0.16), uv.y);
+    float3 aurora = mix(float3(0.12, 0.9, 0.66), float3(0.42, 0.25, 0.92),
+                        0.5 + 0.5 * sin(x * 2.0 + time * 0.3));
+    float3 color = night + aurora * ribbon * shimmer * 0.7
+                        + float3(0.08, 0.24, 0.28) * glow;
+    return half4(half3(color), 1.0);
+}

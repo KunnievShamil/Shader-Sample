@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Shader Lab</string>
+    <string name="lab_label">COMPOSE / SHADER LAB</string>
+    <string name="gallery_title">Шейдеры\nв деталях</string>
+    <string name="gallery_description">Коллекция небольших экспериментов с цветом, светом и движением.</string>
+    <string name="aurora_title">Северное сияние</string>
+    <string name="aurora_description">Живой градиент внутри Compose-карточки. Первый эксперимент с AGSL.</string>
+    <string name="open_demo">Открыть эксперимент →</string>
+    <string name="gallery_footer">01 эксперимент · AGSL на Android 13+</string>
+    <string name="back_to_gallery">← Все эксперименты</string>
+    <string name="first_experiment">ЭКСПЕРИМЕНТ 01</string>
+    <string name="demo_description">Плавные ленты света, нарисованные шейдером. Измени скорость или останови мгновение.</string>
+    <string name="card_label">AURORA / LIVE GRADIENT</string>
+    <string name="card_title">Свет в движении</string>
+    <string name="speed">Скорость</string>
+    <string name="speed_value">%1$.2f×</string>
+    <string name="pause">Приостановить</string>
+    <string name="resume">Продолжить</string>
+    <string name="shader_explanation">Цвет каждого пикселя вычисляется в AGSL. Время двигает волны, а текст остаётся обычным Compose-контентом поверх шейдера.</string>
+    <string name="shader_unsupported">Для анимации AGSL нужен Android 13 или новее. На этом устройстве показан статичный градиент.</string>
+</resources>

@@ -1,0 +1,30 @@
+# Local IDE and machine settings
+.idea/
+*.iml
+local.properties
+.DS_Store
+Thumbs.db
+
+# Generated Gradle, Kotlin and native build files
+.gradle/
+.kotlin/
+build/
+.externalNativeBuild/
+.cxx/
+captures/
+
+# Generated packages, diagnostics and emulator dumps
+*.apk
+*.aab
+*.apks
+*.hprof
+*.log
+
+# Local credentials and signing keys
+.env
+.env.*
+!.env.example
+keystore.properties
+key.properties
+*.jks
+*.keystore
