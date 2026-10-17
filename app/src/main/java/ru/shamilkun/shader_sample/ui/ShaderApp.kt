@@ -27,7 +27,7 @@ import ru.shamilkun.shader_sample.ui.components.AuroraCard
 import ru.shamilkun.shader_sample.ui.components.LiquidMetalCard
 import ru.shamilkun.shader_sample.ui.theme.ShaderSampleTheme
 
-private enum class Demo { Aurora, LiquidMetal }
+private enum class Demo { Aurora, LiquidMetal, ThermalCamera }
 
 @Composable
 fun ShaderApp() {
@@ -36,7 +36,10 @@ fun ShaderApp() {
     Surface(modifier = Modifier.fillMaxSize()) {
         val demo = selectedDemo
         if (demo != null) {
-            key(demo) { DemoScreen(demo = demo, onBack = { selectedDemo = null }) }
+            key(demo) {
+                if (demo == Demo.ThermalCamera) CameraScreen(onBack = { selectedDemo = null })
+                else DemoScreen(demo = demo, onBack = { selectedDemo = null })
+            }
         } else {
             GalleryScreen(onOpenDemo = { selectedDemo = it })
         }
@@ -46,7 +49,7 @@ fun ShaderApp() {
 @Composable
 private fun GalleryScreen(onOpenDemo: (Demo) -> Unit) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize().safeDrawingPadding(),
+        modifier = Modifier.fillMaxSize().safeDrawingPadding().testTag("gallery"),
         contentPadding = PaddingValues(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
@@ -94,6 +97,29 @@ private fun GalleryScreen(onOpenDemo: (Demo) -> Unit) {
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(R.string.metal_title), style = MaterialTheme.typography.titleLarge)
                     Text(stringResource(R.string.metal_description), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.open_demo), Modifier.padding(top = 8.dp),
+                        color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+                }
+            }
+        }
+        item(key = "thermal_camera") {
+            Card(
+                onClick = { onOpenDemo(Demo.ThermalCamera) },
+                modifier = Modifier.testTag("demo_camera"),
+                shape = RoundedCornerShape(28.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            ) {
+                Box(Modifier.fillMaxWidth().height(180.dp).background(
+                    androidx.compose.ui.graphics.Brush.linearGradient(listOf(
+                        androidx.compose.ui.graphics.Color(0xFF080A30), androidx.compose.ui.graphics.Color(0xFF154DF2),
+                        androidx.compose.ui.graphics.Color(0xFFCB0A73), androidx.compose.ui.graphics.Color(0xFFFF500A),
+                        androidx.compose.ui.graphics.Color(0xFFFFFA8C),
+                    )))) {
+                    Text("03 / LIVE CAMERA", Modifier.padding(20.dp), style = MaterialTheme.typography.labelMedium)
+                }
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(stringResource(R.string.camera_title), style = MaterialTheme.typography.titleLarge)
+                    Text(stringResource(R.string.camera_gallery_description), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(stringResource(R.string.open_demo), Modifier.padding(top = 8.dp),
                         color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
                 }
